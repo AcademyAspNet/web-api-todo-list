@@ -1,11 +1,26 @@
-﻿namespace MyFirstWebApi.Data.Models
+﻿using MyFirstWebApi.Models.DTO;
+using System.ComponentModel.DataAnnotations;
+
+namespace MyFirstWebApi.Data.Models
 {
-    public class TaskItem
+    public class TaskItem : IToDataTransferObject<TaskItemDTO>
     {
-        public required long ID { get; set; }
+        [Key]
+        public long ID { get; set; }
         public required string Title { get; set; }
         public string? Description { get; set; }
         public bool IsDone { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public TaskItemDTO ToEntity()
+        {
+            return new TaskItemDTO()
+            {
+                Title = Title,
+                Description = Description,
+                IsDone = IsDone,
+                CreatedAt = CreatedAt
+            };
+        }
     }
 }

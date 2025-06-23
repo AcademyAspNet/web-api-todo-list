@@ -1,4 +1,5 @@
-﻿using MyFirstWebApi.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using MyFirstWebApi.Data;
 using MyFirstWebApi.Data.Models;
 using MyFirstWebApi.Models.DTO;
 
@@ -12,10 +13,20 @@ namespace MyFirstWebApi.Services.Implementations
         {
             _database = database;
         }
-        public void AddTask(TaskItemDTO task)
+
+        public void AddTask(TaskItemDTO taskItemDto)
         {
-            throw new NotImplementedException();
+            TaskItem taskItem = taskItemDto.ToEntity();
+
+            _database.TaskItems.Add(taskItem);
+            _database.SaveChanges();
         }
+
+        public void DeleteTask(long id)
+        {
+            _database.TaskItems.Where(task => task.ID == id).ExecuteDelete();
+        }
+
 
         public List<TaskItem> GetTaskItems()
         {

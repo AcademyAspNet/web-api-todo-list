@@ -6,6 +6,7 @@ namespace MyFirstWebApi.Services
     public interface ITaskItemService
     {
         void AddTask(TaskItemDTO task);
+        void DeleteTask(long id);
         List<TaskItem> GetTaskItems();
     }
 }
