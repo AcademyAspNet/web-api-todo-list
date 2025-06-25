@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstWebApi.Data.Models;
+using MyFirstWebApi.Exceptions;
 using MyFirstWebApi.Helpers;
 using MyFirstWebApi.Models.DTO;
 using MyFirstWebApi.Models.Response;
@@ -10,8 +11,8 @@ using System.Net;
 namespace MyFirstWebApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class TaskController
+    [Route("v1/tasks")]
+    public class TaskController : ControllerBase
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -21,39 +22,59 @@ namespace MyFirstWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetAll")]
-        public ApiResult<IEnumerable<TaskItem>> GetTasks()
+        public IEnumerable<TaskItem> GetTasks()
         {
-            IEnumerable<TaskItem> tasks = _taskItemService.GetTaskItems();
-            return ApiHelper.Ok(tasks);
+            return _taskItemService.GetTaskItems();
         }
 
-        [HttpPut]
-        [Route("AddTask")]
-        public ApiResult<Object> CreateNewTask([FromForm] TaskItemDTO item)
+        [HttpGet]
+        [Route("{id:long}")]
+        public IActionResult GetTask(long id)
         {
-            if (string.IsNullOrWhiteSpace(item.Title))
-                return ApiHelper.Fail("Title should be specified", HttpStatusCode.BadRequest);
+            TaskItem? task = _taskItemService.GetTaskItemById(id);
 
-            try
-            {
-                _taskItemService.AddTask(item);
-                throw new Exception();
-            }
-            catch (Exception)
-            {
-                return ApiHelper.Fail("Something went wrong", HttpStatusCode.InternalServerError);
-            }
+            if (task == null)
+                return NotFound();
 
-            return ApiHelper.Ok();
+            return Ok(task);
         }
 
         [HttpDelete]
-        [Route("DeleteTask")]
-        public void DeleteTaskById(long id)
+        [Route("{id:long}")]
+        public IActionResult DeleteTask([FromRoute] long id)
         {
             _taskItemService.DeleteTask(id);
+            return Ok();
         }
 
+        [HttpPost]
+        public IActionResult CreateTask([FromForm] TaskItemDTO item)
+        {
+            if (string.IsNullOrWhiteSpace(item.Title))
+                return BadRequest("Title should be specified");
+
+            _taskItemService.AddTask(item);
+
+            return Ok();
+        }
+
+        [HttpPatch]
+        [Route("{id:long}")]
+        public IActionResult EditTask(long id, [FromForm] TaskItemDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest("Title should be specified");
+
+            try
+            {
+                _taskItemService.EditTask(id, dto);
+            }
+            catch (TaskNotFoundException)
+            {
+                return NotFound("Task not found");
+            }
+
+            return Ok();
+        }
     }
 }

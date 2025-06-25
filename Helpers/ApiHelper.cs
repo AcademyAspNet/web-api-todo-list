@@ -6,7 +6,7 @@ namespace MyFirstWebApi.Helpers
 {
     public class ApiHelper
     {
-        public static ApiResult<T> Ok<T>(T result)
+        public static ApiResult<T> Ok<T>(T? result = default)
         {
             return new ApiResult<T>()
             {
@@ -15,17 +15,12 @@ namespace MyFirstWebApi.Helpers
             };
         }
 
-        public static ApiResult<Object> Ok()
+        public static ApiResult<T> Fail<T>(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         {
-            return Ok<Object>(new object());
-        }
-
-        public static ApiResult<Object> Fail(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
-        {
-            return new ApiResult<Object>()
+            return new ApiResult<T>()
             {
                 Success = false,
-                Result = default(Object),
+                Result = default,
                 Error = new ErrorMessage()
                 {
                     Code = (int) statusCode,

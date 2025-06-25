@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using MyFirstWebApi.Data;
+using MyFirstWebApi.Middleware;
 using MyFirstWebApi.Services;
 using MyFirstWebApi.Services.Implementations;
 
@@ -42,6 +43,8 @@ namespace MyFirstWebApi
             });
 
             var app = builder.Build();
+
+            app.UseMiddleware<ApiResultMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -8,5 +8,7 @@ namespace MyFirstWebApi.Services
         void AddTask(TaskItemDTO task);
         void DeleteTask(long id);
         List<TaskItem> GetTaskItems();
+        TaskItem? GetTaskItemById(long id);
+        void EditTask(long id, TaskItemDTO taskDto);
     }
 }
