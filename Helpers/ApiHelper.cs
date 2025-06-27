@@ -15,12 +15,12 @@ namespace MyFirstWebApi.Helpers
             };
         }
 
-        public static ApiResult<T> Fail<T>(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+        public static ApiResult<object> Fail(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         {
-            return new ApiResult<T>()
+            return new ApiResult<object>()
             {
                 Success = false,
-                Result = default,
+                Result = null,
                 Error = new ErrorMessage()
                 {
                     Code = (int) statusCode,

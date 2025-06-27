@@ -44,7 +44,8 @@ namespace MyFirstWebApi
 
             var app = builder.Build();
 
-            app.UseMiddleware<ApiResultMiddleware>();
+            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
+            app.UseMiddleware<RequestTimeMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

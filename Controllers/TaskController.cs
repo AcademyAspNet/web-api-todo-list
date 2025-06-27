@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MyFirstWebApi.Controllers.Base;
 using MyFirstWebApi.Data.Models;
 using MyFirstWebApi.Exceptions;
 using MyFirstWebApi.Helpers;
@@ -12,7 +13,7 @@ namespace MyFirstWebApi.Controllers
 {
     [ApiController]
     [Route("v1/tasks")]
-    public class TaskController : ControllerBase
+    public class TaskController : ApiController
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -22,9 +23,9 @@ namespace MyFirstWebApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<TaskItem> GetTasks()
+        public IActionResult GetTasks()
         {
-            return _taskItemService.GetTaskItems();
+            return ApiOk(_taskItemService.GetTaskItems());
         }
 
         [HttpGet]
@@ -34,9 +35,9 @@ namespace MyFirstWebApi.Controllers
             TaskItem? task = _taskItemService.GetTaskItemById(id);
 
             if (task == null)
-                return NotFound();
+                return ApiNotFound();
 
-            return Ok(task);
+            return ApiOk(task);
         }
 
         [HttpDelete]
@@ -44,18 +45,18 @@ namespace MyFirstWebApi.Controllers
         public IActionResult DeleteTask([FromRoute] long id)
         {
             _taskItemService.DeleteTask(id);
-            return Ok();
+            return ApiOk();
         }
 
         [HttpPost]
         public IActionResult CreateTask([FromForm] TaskItemDTO item)
         {
             if (string.IsNullOrWhiteSpace(item.Title))
-                return BadRequest("Title should be specified");
+                return ApiFail("Title should be specified", HttpStatusCode.BadRequest);
 
             _taskItemService.AddTask(item);
 
-            return Ok();
+            return ApiOk();
         }
 
         [HttpPatch]
@@ -71,10 +72,17 @@ namespace MyFirstWebApi.Controllers
             }
             catch (TaskNotFoundException)
             {
-                return NotFound("Task not found");
+                return ApiNotFound("Task not found");
             }
 
-            return Ok();
+            return ApiOk();
+        }
+
+        [HttpGet]
+        [Route("exception")]
+        public void ThrowException()
+        {
+            throw new Exception();
         }
     }
 }
