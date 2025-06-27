@@ -1,12 +1,25 @@
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyFirstWebApi.Data;
+using MyFirstWebApi.Data.Models;
 using MyFirstWebApi.Middleware;
+using MyFirstWebApi.Models.DTO;
 using MyFirstWebApi.Services;
 using MyFirstWebApi.Services.Implementations;
+using Serilog;
 
 namespace MyFirstWebApi
 {
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<TaskItem, TaskItemDTO>();
+            CreateMap<TaskItemDTO, TaskItem>();
+        }
+    }
+
     public class Program
     {
         public static void Main(string[] args)
@@ -42,6 +55,20 @@ namespace MyFirstWebApi
                 });
             });
 
+            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+            Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Warning()
+                        .WriteTo.File(
+                            "logs/log.txt",
+                            rollingInterval: RollingInterval.Day,
+                            retainedFileCountLimit: 7,
+                            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                         )
+                        .CreateLogger();
+
+            builder.Host.UseSerilog();
+
             var app = builder.Build();
 
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
@@ -54,6 +81,7 @@ namespace MyFirstWebApi
                 app.UseSwaggerUI();
             }
 
+            app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

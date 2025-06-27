@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MyFirstWebApi.Data;
 using MyFirstWebApi.Data.Models;
 using MyFirstWebApi.Exceptions;
@@ -11,16 +12,20 @@ namespace MyFirstWebApi.Services.Implementations
 {
     public class TaskItemService : ITaskItemService
     {
-        ApplicationDbContext _database;
+        private readonly ApplicationDbContext _database;
+        private readonly IMapper _mapper;
 
-        public TaskItemService(ApplicationDbContext database)
+        public TaskItemService(ApplicationDbContext database, IMapper mapper)
         {
             _database = database;
+            _mapper = mapper;
         }
 
         public void AddTask(TaskItemDTO taskItemDto)
         {
-            TaskItem taskItem = taskItemDto.ToEntity();
+            Console.WriteLine($"{taskItemDto.Title}, {taskItemDto.CreatedAt}, {taskItemDto.ToString()}");
+            TaskItem taskItem = _mapper.Map<TaskItem>(taskItemDto);
+            Console.WriteLine($"{taskItem.Title}, {taskItem.CreatedAt}, {taskItem.ToString()}");
 
             _database.TaskItems.Add(taskItem);
             _database.SaveChanges();
